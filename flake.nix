@@ -43,11 +43,6 @@
               rev = "89bff55e533569b7390848f35b9dd95b552e50ae";
               sha256 = "sha256-ejx6REsmf1GtlpC8lJSLqllx7+BhzjhRKTYDZmVDHIU=";
             };
-            propagatedBuildInputs = [
-              final.python3Packages.pycurl
-            ] ++ (nixpkgs.lib.filter (
-              pkg: pkg != prev.python3Packages.pycurl
-            ) old.propagatedBuildInputs);
           });
           pychromecast-9 = python-super.PyChromecast.overridePythonAttrs (old: {
             src = python-super.fetchPypi {
@@ -58,6 +53,7 @@
           });
         };
       in prev.python3.override {inherit packageOverrides;};
+      python3Packages = final.python3.pkgs;
       pulseaudio-dlna = prev.pulseaudio-dlna.overridePythonAttrs (old: {
         src = prev.fetchFromGitHub {
           owner = "Cygn";
