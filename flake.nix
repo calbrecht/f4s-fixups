@@ -19,6 +19,23 @@
 
     overlay = final: prev: {
 
+      lit = prev.lit.overridePythonAttrs (old: {
+        prePatch = ''
+          substituteInPlace ./lit/llvm/config.py \
+            --replace "os.path.join(self.config.llvm_tools_dir, 'llvm-config')" \
+                      "'${prev.llvm_11.dev}/bin/llvm-config'" \
+            --replace "clang_dir, _ = self.get_process_output(" \
+                      "" \
+            --replace "    [clang, '-print-file-name=include'])" \
+                      "clang_dir = '${prev.llvmPackages_11.clang}/resource-root/include'"
+        '';
+        nativeBuildInputs = [ prev.makeWrapper ];
+        postInstall = ''
+          wrapProgram $out/bin/lit \
+            --set-default CLANG ${prev.llvmPackages_11.clang}/bin/clang
+        '';
+      });
+
       glslang = (prev.glslang.override {
         inherit (final) spirv-headers spirv-tools;
       }).overrideAttrs (old: rec {
@@ -34,8 +51,13 @@
 
       opencl-clang = (prev.opencl-clang.override {
         inherit (final) spirv-llvm-translator;
+        buildWithPatches = false;
       }).overrideAttrs (old: {
         version = "ocl-open-110";
+
+        passthru = {};
+
+        #patches = [];
 
         src = pkgs.fetchFromGitHub {
           owner = "intel";
@@ -67,6 +89,16 @@
           rev = "sdk-${version}";
           sha256 = "sha256-DSqZlwfNTbN4fyIrVBKltm5U2U4GthW3L+Ksw4lSVG8=";
         };
+
+        prePatch = ''
+          substituteInPlace ./cmake/SPIRV-Tools.pc.in \
+            --replace '/@CMAKE_INSTALL_INCLUDEDIR@' "/include" \
+            --replace '/@CMAKE_INSTALL_LIBDIR@' "/lib"
+
+          substituteInPlace ./cmake/SPIRV-Tools-shared.pc.in \
+            --replace '/@CMAKE_INSTALL_INCLUDEDIR@' "/include" \
+            --replace '/@CMAKE_INSTALL_LIBDIR@' "/lib"
+        '';
       });
 
       spirv-llvm-translator = prev.spirv-llvm-translator.overrideAttrs (old: {
@@ -83,6 +115,16 @@
             final.spirv-headers
             final.spirv-tools
           ] ++ old.buildInputs;
+
+          cmakeFlags = [
+            "-DLLVM_DIR=${prev.llvm_11.dev}"
+            "-DLLVM_SPIRV_BUILD_EXTERNAL=YES"
+            "-DLLVM_EXTERNAL_LIT=${final.lit}/bin/lit"
+          ] ++ old.cmakeFlags;
+
+          makeFlags = [ "llvm-spirv" ];
+
+          doCheck = true;
       });
 
       intel-graphics-compiler = let
@@ -94,17 +136,11 @@
           };
       in (prev.intel-graphics-compiler.override {
         inherit (final) spirv-llvm-translator;
-        opencl-clang = (final.opencl-clang.override {
-          # Need not patch or will get
-          # CommandLine Error: Option 'spirv-text' registered more than once!
-          # LLVM ERROR: inconsistency in registered CommandLine options
-          # because of different llvm binaries
-          # https://github.com/intel/compute-runtime/issues/519
-          # like similar case, e.g. https://github.com/NixOS/nixpkgs/issues/97401
-          buildWithPatches = false;
+        opencl-clang = final.opencl-clang.overrideAttrs (old: {
+          clang = prev.llvmPackages_11.clang;
+          libclang = prev.llvmPackages_11.libclang;
+          spirv-llvm-translator = final.spirv-llvm-translator;
         });
-        # Need patch or will get
-        # error: infinite recursion encountered intel-graphics-compiler/default.nix:25:12
         buildWithPatches = true;
       }).overrideAttrs (old: rec {
         version = "1.0.11061";
@@ -122,15 +158,19 @@
         ] ++ old.buildInputs;
 
         prePatch = ''
-         substituteInPlace ./external/SPIRV-Tools/CMakeLists.txt \
-           --replace '{SPIRV-Tools_DIR}../../..' \
-                     '${final.spirv-tools}' \
-           --replace 'SPIRV-Headers_INCLUDE_DIR "/usr/include"' \
-                     'SPIRV-Headers_INCLUDE_DIR "${final.spirv-headers}/include"' \
-           --replace 'set_target_properties(SPIRV-Tools' \
-                     'set_target_properties(SPIRV-Tools-shared' \
-           --replace 'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools' \
-                     'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools-shared'
+          substituteInPlace ./external/SPIRV-Tools/CMakeLists.txt \
+            --replace '$'''{SPIRV-Tools_DIR}../../..' \
+                      '${final.spirv-tools}' \
+            --replace 'SPIRV-Headers_INCLUDE_DIR "/usr/include"' \
+                      'SPIRV-Headers_INCLUDE_DIR "${final.spirv-headers}/include"' \
+            --replace 'set_target_properties(SPIRV-Tools' \
+                      'set_target_properties(SPIRV-Tools-static' \
+            --replace 'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools' \
+                      'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools-static'
+
+          substituteInPlace ./IGC/AdaptorOCL/igc-opencl.pc.in \
+            --replace '/@CMAKE_INSTALL_INCLUDEDIR@' "/include" \
+            --replace '/@CMAKE_INSTALL_LIBDIR@' "/lib"
         '';
 
         cmakeFlags = [
@@ -157,29 +197,29 @@
           sha256 = "sha256-ae6kPiVQe3+hcqXVu2ncCaVQAoMKoDHifrkKpt6uWX8=";
         };
 
-        #buildInputs = [
-        #  final.opencl-clang
-        #  final.opencl-clang.clang
-        #  final.opencl-clang.libclang
-        #  final.llvmPackages_11.llvm
-        #  final.lld_11
-        #] ++ old.buildInputs;
+        buildInputs = [
+          #final.opencl-clang
+          #final.opencl-clang.clang
+          #final.opencl-clang.libclang
+          #final.llvmPackages_11.llvm
+          #final.lld_11
+        ] ++ old.buildInputs;
+
+        #NIX_LD_FLAGS = "-L${prev.gccForLibs.lib}/lib";
 
         cmakeFlags = [
-          "--log-level=debug"
-          "--debug-output"
-
-          "-DNEO_DISABLE_BUILTINS_COMPILATION=ON"
-          "-DSKIP_UNIT_TESTS=1"
-          #"-DPREFERRED_LLVM_VERSION=${pkgs.lib.getVersion prev.llvmPackages_11.llvm}"
-
+          #"-DNEO_DISABLE_BUILTINS_COMPILATION=ON"
           "-DIGC_DIR=${final.intel-graphics-compiler}"
-          "-DOCL_ICD_VENDORDIR=${placeholder "out"}/etc/OpenCL/vendors"
-        ];
+        ] ++ (pkgs.lib.filter (
+          flag: (
+            "-DIGC_DIR" != builtins.substring 0 9 flag
+          )
+        ) old.cmakeFlags);
       });
 
       python3 = let
         packageOverrides = python-self: python-super: {
+
           pycurl = python-super.pycurl.overridePythonAttrs (old: {
             disabledTests = old.disabledTests ++ [
               "test_request_with_verifypeer"
