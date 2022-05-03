@@ -118,13 +118,20 @@
 
           cmakeFlags = [
             "-DLLVM_DIR=${prev.llvm_11.dev}"
+            "-DBUILD_SHARED_LIBS=YES"
             "-DLLVM_SPIRV_BUILD_EXTERNAL=YES"
             "-DLLVM_EXTERNAL_LIT=${final.lit}/bin/lit"
           ] ++ old.cmakeFlags;
 
+          prePatch = ''
+            substituteInPlace ./test/CMakeLists.txt \
+              --replace 'SPIRV-Tools' 'SPIRV-Tools-shared'
+          '';
+
           makeFlags = [ "llvm-spirv" ];
 
-          doCheck = true;
+          # FIXME lit should find our newly build libLLVMSPIRVLib.so.11
+          doCheck = false;
       });
 
       intel-graphics-compiler = let
@@ -167,9 +174,6 @@
                       'set_target_properties(SPIRV-Tools-shared' \
             --replace 'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools' \
                       'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools-shared'
-
-          substituteInPlace ./test/CMakeLists.txt \
-            --replace 'SPIRV-Tools' 'SPIRV-Tools-shared'
 
           substituteInPlace ./IGC/AdaptorOCL/igc-opencl.pc.in \
             --replace '/@CMAKE_INSTALL_INCLUDEDIR@' "/include" \
