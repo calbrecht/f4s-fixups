@@ -164,9 +164,12 @@
             --replace 'SPIRV-Headers_INCLUDE_DIR "/usr/include"' \
                       'SPIRV-Headers_INCLUDE_DIR "${final.spirv-headers}/include"' \
             --replace 'set_target_properties(SPIRV-Tools' \
-                      'set_target_properties(SPIRV-Tools-static' \
+                      'set_target_properties(SPIRV-Tools-shared' \
             --replace 'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools' \
-                      'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools-static'
+                      'IGC_BUILD__PROJ__SPIRV-Tools SPIRV-Tools-shared'
+
+          substituteInPlace ./test/CMakeLists.txt \
+            --replace 'SPIRV-Tools' 'SPIRV-Tools-shared'
 
           substituteInPlace ./IGC/AdaptorOCL/igc-opencl.pc.in \
             --replace '/@CMAKE_INSTALL_INCLUDEDIR@' "/include" \
@@ -177,7 +180,7 @@
           "-Wno-dev"
           "-DVC_INTRINSICS_SRC=${vc_intrinsics_src}"
           "-DIGC_OPTION__SPIRV_TOOLS_MODE=Prebuilds"
-          "-DIGC_OPTION__USE_PREINSTALLED_SPRIV_HEADERS=ON"
+          #"-DIGC_OPTION__USE_PREINSTALLED_SPRIV_HEADERS=ON"
         ] ++ (pkgs.lib.filter (
           flag: (
             "-DVC_INTRINSICS_SRC" != builtins.substring 0 19 flag
