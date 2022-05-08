@@ -5,6 +5,10 @@
     flake-registry = https://github.com/calbrecht/f4s-registry/raw/main/flake-registry.json;
   };
 
+  inputs = {
+    nixpkgs.url = flake:f4s-nixpkgs;
+  };
+
   outputs = { self, nixpkgs, ... }@inputs:
   let
     system = "x86_64-linux";
