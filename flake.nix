@@ -51,6 +51,16 @@ index e2e1def5..f2bc621f 100644
 
     overlay = final: prev: {
 
+      fmt = prev.fmt.overrideAttrs (old: rec {
+        version = "8.1.1";
+        src = prev.fetchFromGitHub {
+          owner = "fmtlib";
+          repo = "fmt";
+          rev = version;
+          sha256 = "sha256-leb2800CwdZMJRWF5b1Y9ocK0jXpOX/nwo95icDf308=";
+        };
+      });
+
       lit = prev.lit.overridePythonAttrs (old: {
         prePatch = ''
           substituteInPlace ./lit/llvm/config.py \
