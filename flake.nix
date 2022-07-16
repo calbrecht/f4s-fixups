@@ -51,7 +51,7 @@ index e2e1def5..f2bc621f 100644
 
     overlay = final: prev: {
 
-      fmt = prev.fmt.overrideAttrs (old: rec {
+      fmt_8 = prev.fmt_8.overrideAttrs (old: rec {
         version = "8.1.1";
         src = prev.fetchFromGitHub {
           owner = "fmtlib";
