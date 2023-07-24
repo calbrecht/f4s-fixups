@@ -22,7 +22,7 @@
     overlays = {
       default = self.overlays.fixups;
       fixups = final: prev: {}
-        // (import ./overlays/mu.nix final prev)
+        #// (import ./overlays/mu.nix final prev)
         // (import ./overlays/goimapnotify.nix final prev)
         #// (import ./overlays/fmt_8.nix final prev)
         #// (import ./overlays/lit.nix final prev)
