@@ -21,15 +21,15 @@
 
     overlays = {
       default = self.overlays.fixups;
-      fixups = final: prev: {
-        inherit (import ./overlays/mu.nix final prev);
-        inherit (import ./overlays/goimapnotify.nix final prev);
-        #inherit (import ./overlays/fmt_8.nix final prev);
-        #inherit (import ./overlays/lit.nix final prev);
-        #inherit (import ./overlays/python3.nix final prev);
-        #inherit (import ./overlays/pulseaudio-dlna.nix final prev);
-        #inherit (import ./overlays/f2fs-tools.nix final prev);
-      };
+      fixups = final: prev: {}
+        // (import ./overlays/mu.nix final prev)
+        // (import ./overlays/goimapnotify.nix final prev)
+        #// (import ./overlays/fmt_8.nix final prev)
+        #// (import ./overlays/lit.nix final prev)
+        #// (import ./overlays/python3.nix final prev)
+        #// (import ./overlays/pulseaudio-dlna.nix final prev)
+        #// (import ./overlays/f2fs-tools.nix final prev)
+        ;
     };
   };
 }

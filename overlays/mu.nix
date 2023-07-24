@@ -11,7 +11,7 @@ final: prev:
       rev = "v${version}";
       #rev = "551bc46b47b740ef90e3f01c333c50d039ee1a2f";
       #hash = "sha256-LZ3le0X9QPdeRczWkt1xglI2QpDjFUP8kGDTbTOBKDA=";
-      hash = "sha256-0Z3le0X9QPdeRczWkt1xglI2QpDjFUP8kGDTbTOBKDA=";
+      hash = "sha256-ha3ckyRNzWF52unY6Pw2M6qeUdC68SGHFvzJ8Jbk2fY=";
     };
 
     postPatch = ''
