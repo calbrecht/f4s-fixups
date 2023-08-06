@@ -2,7 +2,7 @@
   description = "Nixpkgs fixups overlay";
 
   nixConfig = {
-    flake-registry = https://github.com/calbrecht/f4s-registry/raw/main/flake-registry.json;
+    flake-registry = "https://github.com/calbrecht/f4s-registry/raw/main/flake-registry.json";
   };
 
   outputs = { self, nixpkgs, ... }@inputs:

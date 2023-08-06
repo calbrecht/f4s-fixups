@@ -9,15 +9,15 @@ final: prev:
       '';
   });
 
-  ytfzf = prev.ytfzf.overrideAttrs (old: rec {
+  ytfzf = prev.ytfzf.overrideAttrs (old: {
     pname = "ytfzf";
     version = "2.6.0-overlay";
 
     src = prev.fetchFromGitHub {
       owner = "calbrecht";
       repo = "ytfzf";
-      rev = "520485a19c02f572e530661aaf26a988f664e966";
-      hash = "sha256-RBNQRrlhJzvi52SqTc7AmUU5T77cBUry+Wp3YcYkG7Y=";
+      rev = "ffc2f4cb5c19a254f014b853d5fb85746c6f805d";
+      hash = "sha256-4V/FfppI4HF3SR/D0ymXuY6+dR46NxbxkuzwI4xU8dc=";
     };
   });
 }
