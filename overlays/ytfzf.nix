@@ -16,8 +16,8 @@ final: prev:
     src = prev.fetchFromGitHub {
       owner = "calbrecht";
       repo = "ytfzf";
-      rev = "ffc2f4cb5c19a254f014b853d5fb85746c6f805d";
-      hash = "sha256-4V/FfppI4HF3SR/D0ymXuY6+dR46NxbxkuzwI4xU8dc=";
+      rev = "bc0a760b53166fa6b22288571a1ac111a3a6ac0f";
+      hash = "sha256-OPJVvo0TKHl8eaMikXNDeU43R34R0DlVyH+lHOKe9oY=";
     };
   });
 }
