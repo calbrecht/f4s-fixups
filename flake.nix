@@ -30,6 +30,7 @@
         #// (import ./overlays/pulseaudio-dlna.nix final prev)
         #// (import ./overlays/f2fs-tools.nix final prev)
         // (import ./overlays/ytfzf.nix final prev)
+        // (import ./overlays/zfs_autobackup.nix final prev)
         ;
     };
   };
