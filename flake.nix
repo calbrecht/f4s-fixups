@@ -21,7 +21,19 @@
 
     overlays = {
       default = self.overlays.fixups;
-      fixups = final: prev: {}
+      fixups = final: prev: {
+        # foot needs newer fcft
+        fcft = prev.fcft.overrideAttrs (old: rec {
+          version = "3.2.0";
+          src = prev.fetchFromGitea {
+            domain = "codeberg.org";
+            owner = "dnkl";
+            repo = "fcft";
+            rev = version;
+            hash = "sha256-VMNjTOil50/GslSzZnBPkSoy0Vg0729ndaEAeXk00GI=";
+          };
+        });
+      }
         #// (import ./overlays/mu.nix final prev)
         // (import ./overlays/goimapnotify.nix final prev)
         #// (import ./overlays/fmt_8.nix final prev)
