@@ -34,6 +34,24 @@
         #    hash = "sha256-VMNjTOil50/GslSzZnBPkSoy0Vg0729ndaEAeXk00GI=";
         #  };
         #});
+        wl-mirror = prev.wl-mirror.overrideAttrs (old: let
+          newer = "0.18.0";
+          older = prev.lib.versionOlder old.version newer;
+        in rec {
+          version = if older then newer else old.version;
+          src = if older then (prev.fetchFromGitHub {
+            owner = "Ferdi265";
+            repo = "wl-mirror";
+            rev = "v${version}";
+            hash = "sha256-Ba7Q5tPM3L9P6D5sXHFgzSrJmVW10jdRLsv5BnEkhHs="; #prev.lib.fakeHash;
+          }) else old.src;
+          buildInputs = old.buildInputs ++ [
+            prev.libgbm
+          ];
+          cmakeFlags = (old.cmakeFlags or []) ++ [
+            "-DWITH_GBM=ON"
+          ];
+        });
       }
         #// (import ./overlays/mu.nix final prev)
         // (import ./overlays/goimapnotify.nix final prev)
