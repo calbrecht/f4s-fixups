@@ -54,7 +54,7 @@
         });
       }
         #// (import ./overlays/mu.nix final prev)
-        // (import ./overlays/goimapnotify.nix final prev)
+        #2026-05-18 // (import ./overlays/goimapnotify.nix final prev)
         #// (import ./overlays/fmt_8.nix final prev)
         #// (import ./overlays/lit.nix final prev)
         #// (import ./overlays/python3.nix final prev)
