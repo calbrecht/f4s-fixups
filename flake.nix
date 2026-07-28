@@ -34,15 +34,6 @@
         #    hash = "sha256-VMNjTOil50/GslSzZnBPkSoy0Vg0729ndaEAeXk00GI=";
         #  };
         #});
-        xdg-desktop-portal-wlr = prev.xdg-desktop-portal-wlr.overrideAttrs (old: {
-          version = "2026-07-28-git";
-          src = prev.fetchFromGitHub {
-            owner = "emersion";
-            repo = "xdg-desktop-portal-wlr";
-            rev = "4f70821cee131d1cb90ba979fea7bc13588ce09f";
-            hash = "sha256-WR9BtCj9pz75qJU3wUK/S2kyOipz0KH0rIYQmJDNzIU=";
-          };
-        });
         wl-mirror = prev.wl-mirror.overrideAttrs (old: let
           newer = "0.18.0";
           older = prev.lib.versionOlder old.version newer;
